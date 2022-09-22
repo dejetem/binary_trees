@@ -1,50 +1,53 @@
 #include "binary_trees.h"
-
 /**
- * binary_tree_size - measures the size of a binary tree
- * @tree: input binary tree
- * Return: number of descendant child nodes
+ * count_nodes - function that finds the sibling of a node
+ *
+ * @root: Pointer to the tree
+ * Return: Return the height of the tree
  */
-size_t binary_tree_size(const binary_tree_t *tree)
+int count_nodes(binary_tree_t *root)
 {
-	if (!tree)
+	if (!root)
 		return (0);
-
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+	return (1 + count_nodes(root->left) + count_nodes(root->right));
 }
-
 /**
- * is_complete - helper func for binary_tree_is_complete
- * @tree: pointer to root of tree
- * @index: index of current node to be verified
- * @size: total number of nodes in tree
- * Return: 1 if true 0 if false
+ * is_complete - function that finds the sibling of a node
+ *
+ * @root: Pointer to the tree
+ * @index: index
+ * @n: integer
+ * Return: Return the height of the tree
  */
-_Bool is_complete(const binary_tree_t *tree, unsigned int index, size_t size)
+int is_complete(binary_tree_t *root, int index, int n)
 {
-	if (!tree)
-		return (true);
-
-	if (index >= size)
-		return (false);
-
-	return (is_complete(tree->left, 2 * index + 1, size) &&
-			is_complete(tree->right, 2 * index + 2, size));
+	if (!root)
+		return (0);
+	if (index >= n)
+		return (0);
+	if (!root->left && !root->right)
+		return (1);
+	if (root->right && !root->left)
+		return (0);
+	if (root->left && !root->right)
+		return (is_complete(root->left, index * 2 + 1, n));
+	return (is_complete(root->left, index * 2 + 1, n) &&
+			is_complete(root->right, index * 2 + 2, n));
 }
-
 /**
- * binary_tree_is_complete - checks if a binary tree is complete
- * @tree: pointer to root of tree
- * Return: 1 if true 0 if false
+ * binary_tree_is_complete - function that finds the sibling of a node
+ *
+ * @tree: Pointer to the tree
+ * Return: Return the height of the tree
  */
 int binary_tree_is_complete(const binary_tree_t *tree)
 {
-	size_t size;
-	unsigned int i = 0;
+	int nodes;
+	binary_tree_t *root;
 
 	if (!tree)
 		return (0);
-
-	size = binary_tree_size(tree);
-	return (is_complete(tree, i, size));
+	root = (binary_tree_t *)tree;
+	nodes = count_nodes(root);
+	return (is_complete(root, 0, nodes));
 }
