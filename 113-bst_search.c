@@ -1,10 +1,10 @@
 #include "binary_trees.h"
-
 /**
- * bst_search - searches for a value in a Binary Search Tree
- * @tree: pointer to root of tree
- * @value: input value
- * Return: pointer to the node containing a value equals to value
+ * bst_search - function that finds the sibling of a node
+ *
+ * @tree: tree
+ * @value: max
+ * Return: Return the height of the tree
  */
 bst_t *bst_search(const bst_t *tree, int value)
 {
@@ -14,8 +14,10 @@ bst_t *bst_search(const bst_t *tree, int value)
 	{
 		if (value == tree->n)
 			return ((bst_t *)tree);
-		tree = value < tree->n ? tree->left
-							   : tree->right;
+		if (value < tree->n)
+			tree = tree->left;
+		else
+			tree = tree->right;
 	}
-	return ((bst_t *)tree);
+	return (NULL);
 }

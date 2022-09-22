@@ -1,106 +1,84 @@
 #include "binary_trees.h"
-
 /**
- * bst_search - searches for a value in a Binary Search Tree
- * @tree: pointer to root of tree
- * @value: input value
- * Return: pointer to the node containing a value equals to value
+ * remove_child - function that finds the sibling of a node
+ *
+ * @parent: tree
+ * @child: max
+ * @val: val
+ * Return: Return the height of the tree
  */
-bst_t *bst_search(const bst_t *tree, int value)
+bst_t *remove_child(bst_t *parent, bst_t *child, bst_t *val)
 {
-	if (!tree)
+	if (val)
+		val->parent = parent;
+	if (parent && parent->left == child)
+		parent->left = val;
+	else if (parent && parent->right == child)
+		parent->right = val;
+	free(child);
+	if (!parent)
+		return (val);
+	return (NULL);
+}
+/**
+ * remove_node - function that finds the sibling of a node
+ *
+ * @root: tree
+ * @node: max
+ * Return: Return the height of the tree
+ */
+bst_t *remove_node(bst_t *root, bst_t *node)
+{
+	bst_t *parent;
+	bst_t *ch_left;
+	bst_t *ch_right;
+	bst_t *curr;
+	bst_t *new_root = NULL;
+
+	if (!node)
 		return (NULL);
-	while (tree)
+	parent = node->parent;
+	ch_left = node->left;
+	ch_right = node->right;
+	if (!ch_left && !ch_right)
+		new_root = remove_child(parent, node, NULL);
+	else if (!ch_right)
+		new_root = remove_child(parent, node, ch_left);
+	else
 	{
-		if (value == tree->n)
-			return ((bst_t *)tree);
-		tree = value < tree->n ? tree->left
-			: tree->right;
+		curr = ch_right;
+		while (curr->left)
+			curr = curr->left;
+		node->n = curr->n;
+		new_root = remove_child(curr->parent, curr, curr->right);
 	}
-	return ((bst_t *)tree);
+	if (new_root)
+		return (new_root);
+	if (!parent && !ch_left && !ch_right)
+		return (NULL);
+	return (root);
 }
-
 /**
- * swap - swaps two nodes in binary tree
- * @node: first node
- * @new: second node
- * Return: pointer to root
- */
-bst_t *swap(bst_t *node, bst_t *new)
-{
-	bst_t *temp = NULL;
-	_Bool left_child = false;
-
-	if (node->parent)
-		left_child = node->parent->left == node;
-	if (new->parent && new->parent != node)
-		new->parent->left = NULL;
-	new->parent = node->parent;
-	if (node->parent)
-	{
-		if (left_child)
-			node->parent->left = new;
-		else
-			node->parent->right = new;
-	}
-	if (node->left != new)
-	{
-		new->left = node->left;
-		node->left->parent = new;
-	}
-	if (node->right && node->right != new)
-	{
-		new->right = node->right;
-		node->right->parent = new;
-	}
-	temp = new;
-	while (temp->parent)
-		temp = temp->parent;
-	free(node);
-	return (temp);
-}
-
-/**
- * bst_remove - removes a node from a Binary Search Tree
- * @root: pointer to root of tree
- * @value: input value
- * Return: pointer to the new root node of the tree after removing the
- * desired value
+ * bst_remove - function that finds the sibling of a node
+ *
+ * @root: tree
+ * @value: max
+ * Return: Return the height of the tree
  */
 bst_t *bst_remove(bst_t *root, int value)
 {
-	bst_t *node, *temp;
-	_Bool left_child = false;
+	bst_t *curr = root;
 
 	if (!root)
 		return (NULL);
-	node = bst_search(root, value);
-	if (!node)
-		return (NULL);
-	if (node->parent)
-		left_child = node->parent->left == node;
-	if (!node->right && !node->left)
+	while (curr)
 	{
-		if (!node->parent)
-		{
-			free(node);
-			return (NULL);
-		}
-		if (left_child)
-			node->parent->left = NULL;
+		if (value == curr->n)
+			return (remove_node(root, curr));
+		if (value < curr->n)
+			curr = curr->left;
 		else
-			node->parent->right = NULL;
-		temp = node->parent;
-		while (temp->parent)
-			temp = temp->parent;
-		free(node);
-		return (temp);
-
+			curr = curr->right;
 	}
-	if (!node->right)
-		return (swap(node, node->left));
-	temp = node->right;
-	while (temp->left)
-		temp = temp->left;
-	return (swap(node, temp));
+	return (root);
 }
