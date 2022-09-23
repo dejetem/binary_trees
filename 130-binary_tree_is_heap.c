@@ -1,77 +1,54 @@
 #include "binary_trees.h"
-
 /**
- * binary_tree_size - measures the size of a binary tree
- * @tree: input binary tree
- * Return: number of descendant child nodes
+ * count_nodes - function that finds the sibling of a node
+ *
+ * @root: val
+ * Return: Return the height of the tree
  */
-size_t binary_tree_size(const binary_tree_t *tree)
+int count_nodes(binary_tree_t *root)
 {
-	if (!tree)
+	if (!root)
 		return (0);
-
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+	return (1 + count_nodes(root->left) + count_nodes(root->right));
 }
-
 /**
- * is_complete - helper func for binary_tree_is_complete
- * @tree: pointer to root of tree
- * @index: index of current node to be verified
- * @size: total number of nodes in tree
- * Return: 1 if true 0 if false
+ * is_max_heap - function that finds the sibling of a node
+ *
+ * @root: tree
+ * @index: max
+ * @n: val
+ * Return: Return the height of the tree
  */
-_Bool is_complete(const binary_tree_t *tree, unsigned int index, size_t size)
+int is_max_heap(binary_tree_t *root, int index, int n)
 {
-	if (!tree)
-		return (true);
-
-	if (index >= size)
-		return (false);
-
-	return (is_complete(tree->left, 2 * index + 1, size) &&
-			is_complete(tree->right, 2 * index + 2, size));
-}
-
-
-/**
- * binary_tree_is_complete - checks if a binary tree is complete
- * @tree: pointer to root of tree
- * Return: 1 if true 0 if false
- */
-int binary_tree_is_complete(const binary_tree_t *tree)
-{
-	size_t size;
-	unsigned int i = 0;
-
-	if (!tree)
+	if (!root)
 		return (0);
-
-	size = binary_tree_size(tree);
-	return (is_complete(tree, i, size));
+	if (index >= n)
+		return (0);
+	if (!root->left && !root->right)
+		return (1);
+	if ((root->left && root->left->n > root->n) ||
+		(root->right && root->right->n > root->n))
+		return (0);
+	if (root->left && !root->right)
+		return (is_max_heap(root->left, index * 2 + 1, n));
+	return (is_max_heap(root->left, index * 2 + 1, n) &&
+			is_max_heap(root->right, index * 2 + 2, n));
 }
-
-_Bool is_heap(const binary_tree_t *tree)
-{
-	if (!tree->left && !tree->right)
-		return (true);
-	if (!tree->right)
-		return (tree->n >= tree->left->n);
-	if (tree->n >= tree->left->n && tree->n >= tree->right->n)
-		return (is_heap(tree->left) && is_heap(tree->right));
-	else
-		return (false);
-}
-
-
 /**
- * binary_tree_is_heap - checks if a binary tree is a valid Max Binary Heap
- * @tree: pointer to root of tree
- * Return: 1 if true 0 if false
+ * binary_tree_is_heap - function that finds the sibling of a node
+ *
+ * @tree: tree
+ * Return: Return the height of the tree
  */
 int binary_tree_is_heap(const binary_tree_t *tree)
 {
+	int nodes;
+	binary_tree_t *root = NULL;
+
 	if (!tree)
 		return (0);
-
-	return (binary_tree_is_complete(tree) && is_heap(tree));
+	root = (binary_tree_t *)tree;
+	nodes = count_nodes(root);
+	return (is_max_heap(root, 0, nodes));
 }
